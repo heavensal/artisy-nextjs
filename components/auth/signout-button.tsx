@@ -5,10 +5,10 @@ export default function SignOut() {
     <form
       action={async () => {
         "use server"
-        await signOut()
+        await signOut({ redirectTo: "/" })
       }}
     >
-      <button type="submit">Sign Out</button>
+      <button type="submit" className="px-4 py-2 ">Sign Out</button>
     </form>
   )
 }
