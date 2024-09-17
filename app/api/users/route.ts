@@ -1,9 +1,7 @@
 // Importations nécessaires
-import { PrismaClient } from '@prisma/client';
-import { NextResponse } from 'next/server';
 
-// Initialisation de PrismaClient
-const prisma = new PrismaClient();
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
 // Fonction pour gérer les requêtes GET
 export async function GET() {
