@@ -1,95 +1,145 @@
-import prisma from "@/lib/prisma";
-import Link from 'next/link';
 
-import CreateSkillForm from "./CreateSkillForm";
-
-export default async function SkillsPage() {
-
-  const skills = await prisma.skill.findMany();
+'use client';
+import { useState, useEffect } from 'react';
+import AddSkill from '@/components/forms/AddSkill';
 
 
-  return (
-    <div>
-      <h1>Skills</h1>
-
-      <div>
-        <CreateSkillForm/>
-      </div>
-      <ul>
-        {skills.map((skill) => (
-          <li key={skill.id}>
-            {skill.name} --- {skill.id} --- <Link href={`/skills/${skill.id}`}>VOIR</Link>
-          </li>
-        ))}
-
-      </ul>
-    </div>
-  );
+interface Skill {
+  id: string;
+  name: string;
 }
-// 'use client';
-// import { useState, useEffect } from 'react';
-// import AddSkill from '@/components/forms/AddSkill';
+
+export default function Page() {
+
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [loadingTime, setLoadingTime] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      const startTime = performance.now();
+      try {
+        const response = await fetch("/api/skills");
+        const skills = await response.json();
+        console.log(skills);
+        setSkills(skills);
+      } catch (error) {
+            console.error('Failed to fetch skills:', error);
+          }
+          const endTime = performance.now();
+          setLoadingTime(endTime - startTime);
+        }
+        fetchSkills();
+      }, []);
+
+      const addSkill = async (skillName: string) => {
+        try {
+          const response = await fetch("/api/skills", {
+            method: "POST",
+            body: JSON.stringify({ name: skillName }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const newSkill = await response.json();
+          console.log(newSkill);
+
+          setSkills(prevSkills => [...prevSkills, newSkill]);
+        } catch (error) {
+            console.error('Failed to add skill:', error);
+          }
+        };
+
+        const deleteSkill = async (id: string) => {
+          try {
+            const response = await fetch(`/api/skills`, {
+              method: "DELETE",
+              body: JSON.stringify({ id }),
+              });
+              const { message } = await response.json();
+              console.log(message);
 
 
-// interface Skill {
-  //   id: number;
-  //   name: string;
-  // }
+              setSkills(prevSkills => prevSkills.filter(skill => skill.id !== id));
+            } catch (error) {
+              console.error('Failed to delete skill:', error);
+            }
+          };
 
-  // export default function Page() {
+        const updateSkill = async (id: string, name: string) => {
+          try {
+            const response = await fetch(`/api/skills`, {
+              method: "PATCH",
+              body: JSON.stringify({ id, name }),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+            const updatedSkill = await response.json();
+            console.log(updatedSkill);
 
-  //   const [skills, setSkills] = useState<Skill[]>([]);
-  //   const [loadingTime, setLoadingTime] = useState<number | null>(null);
+            setSkills(prevSkills => prevSkills.map(skill => {
+              if (skill.id === id) {
+                return updatedSkill;
+              }
+              return skill;
+            }
+            ));
+          } catch (error) {
+            console.error('Failed to update skill:', error);
+          }
+        }
 
-  //   useEffect(() => {
-    //     const fetchSkills = async () => {
-      //       const startTime = performance.now();
-      //       try {
-        //         const response = await fetch("http://localhost:3000/api/skills");
-        //         const skills = await response.json();
-        //         console.log(skills);
 
-        //         setSkills(skills);
-        //       } catch (error) {
-          //         console.error('Failed to fetch skills:', error);
-          //       }
-          //       const endTime = performance.now();
-          //       setLoadingTime(endTime - startTime);
-          //     }
-          //     fetchSkills();
-          //   }, []);
 
-          //   const addSkill = async (skillName: string) => {
-            //     try {
-              //       const response = await fetch("http://localhost:3000/api/skills", {
-                //         method: "POST",
-                //         body: JSON.stringify({ name: skillName }),
-                //         headers: {
-                  //           "Content-Type": "application/json",
-                  //         },
-                  //       });
-                  //       const newSkill = await response.json();
-                  //       console.log(newSkill);
 
-                  //       setSkills(prevSkills => [...prevSkills, newSkill]);
-                  //     } catch (error) {
-                    //       console.error('Failed to add skill:', error);
-                    //     }
-                    //   };
+                    return (
+        <>
+          <div>
+              Temps de chargement : {loadingTime ? `${loadingTime.toFixed(2)} ms` : 'Chargement...'}
+          </div>
 
-                    //   return (
-                      //     <>
-                      //       <div>
-                      //           Temps de chargement : {loadingTime ? `${loadingTime.toFixed(2)} ms` : 'Chargement...'}
-                      //       </div>
-                      //       <ul>
-                      //         {skills.map((skill) => (
-                        //           <div key={skill.id}>
-                        //             <li>{skill.name} --- {skill.id}</li>
-                        //           </div>
-                        //         ))}
-                        //       </ul>
-                        //       <AddSkill onAddSkill={addSkill} />
-                        //     </>
-                        //   );
-                        // }
+            <div className='container'>
+
+              <h1 className='text-3xl text-center'>Compétences</h1>
+
+              <div>
+                <ul className='md:w-1/2 mx-auto'>
+                  {skills.map((skill) => (
+
+                    <div key={skill.id}>
+
+                      <li className='flex justify-between'>
+
+                        <div>
+                          <span>{skill.name}</span>
+                        </div>
+
+                        <div>
+
+                          <form onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            const name = formData.get('name') as string;
+                            updateSkill(skill.id, name);
+                          }
+                          }>
+                            <input type='hidden' name='id' value={skill.id} />
+                            <input type='text' name='name' placeholder='Nom de la compétence' defaultValue={skill.name} required />
+                            <button type='submit'>Modifier la compétence</button>
+                          </form>
+                          <button className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded' onClick={() => deleteSkill(skill.id)}>Supprimer</button>
+                        </div>
+
+                      </li>
+                    </div>
+                  ))}
+                </ul>
+              </div>
+
+            </div>
+
+            <AddSkill onAddSkill={addSkill} />
+          </>
+        );
+  }

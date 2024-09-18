@@ -2,48 +2,26 @@
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-
-// Fonction pour gérer les requêtes GET
+// Fonction pour obtenir tous les skills
 export async function GET() {
   try {
     const skills = await prisma.skill.findMany();
     return NextResponse.json(skills, { status: 200 });
-
   } catch (error) {
-    console.error("Error retrieving skills:", error);
-    return NextResponse.json({ message: "Error retrieving skills" }, { status: 500 });
+    return NextResponse.json({ message: 'Erreur lors de la récupération des compétences' }, { status: 500 });
   }
 }
 
-// Fonction pour gérer les requêtes POST
-
+// Fonction pour créer un skill
 export async function POST(req: NextRequest) {
   try {
     const { name } = await req.json();
-    const skill = await prisma.skill.create({
-      data: { name },
-    });
+    const skill = await prisma.skill.create({ data: { name } });
     return NextResponse.json(skill, { status: 201 });
   } catch (error) {
-    console.error("Error creating skill:", error);
-    return NextResponse.json({ message: "Error creating skill" }, { status: 500 });
+    return NextResponse.json({ message: 'Erreur lors de la création de la compétence' }, { status: 500 });
   }
 }
-
-// Fonction pour gérer les requêtes DELETE
-
-export async function DELETE(req: NextRequest) {
-  try {
-    const { id } = await req.json();
-    await prisma.skill.delete({ where: { id } });
-    return NextResponse.json({ message: "Skill deleted" }, { status: 200 });
-  } catch (error) {
-    console.error("Error deleting skill:", error);
-    return NextResponse.json({ message: "Error deleting skill" }, { status: 500 });
-  }
-}
-
-// Fonction pour gérer les requêtes PATCH
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -54,7 +32,20 @@ export async function PATCH(req: NextRequest) {
     });
     return NextResponse.json(skill, { status: 200 });
   } catch (error) {
-    console.error("Error updating skill:", error);
-    return NextResponse.json({ message: "Error updating skill" }, { status: 500 });
+    console.error("Erreur lors de la mise à jour de la compétence:", error);
+    return NextResponse.json({ message: "Erreur lors de la mise à jour de la compétence" }, { status: 500 });
+  }
+}
+
+
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { id } = await req.json();
+    const skill = await prisma.skill.delete({ where: { id } });
+    return NextResponse.json({ message: skill.name + "Compétence supprimée avec succès" }, { status: 200 });
+  } catch (error) {
+    console.error("Error deleting skill:", error);
+    return NextResponse.json({ message: "Erreur lors de la suppression de la compétence" }, { status: 500 });
   }
 }
