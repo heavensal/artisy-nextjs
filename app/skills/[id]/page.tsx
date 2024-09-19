@@ -1,15 +1,20 @@
-import { GetOneSkill } from "@/app/controllers/SkillsController";
-import UpdateSkillForm from "@/app/skills/[id]/UpdateSkillForm";
+// app/skills/[id]/page.tsx
 
+import Link from 'next/link';
+interface Params {
+  id: string;
+}
 
-async function ShowSkillPage( { params } ) {
-  const skill = await GetOneSkill( params.id );
+export default async function SkillPage({ params }: { params: Params }) {
+  const response = await fetch(`${process.env.API_URL}/skills/${params.id}`);
+  const skill = await response.json();
   return (
     <div>
-      <h1>{skill?.name}</h1>
-      <p>{skill?.id}</p>
-      <UpdateSkillForm skill={skill} />
+      <h1>{skill.name}</h1>
+      <Link href="/skills" className='bg-gray-700 py-2 px-4 rounded hover:bg-gray-300'>
+        Retour à la liste des compétences
+      </Link>
+
     </div>
-  );
+  )
 }
-export default ShowSkillPage;

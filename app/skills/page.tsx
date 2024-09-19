@@ -2,6 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import AddSkill from '@/components/forms/AddSkill';
+import Link from 'next/link';
 
 
 interface Skill {
@@ -104,7 +105,7 @@ export default function Page() {
               <h1 className='text-3xl text-center'>Compétences</h1>
 
               <div>
-                <ul className='md:w-1/2 mx-auto'>
+                <ul className='md:w-2/3 mx-auto'>
                   {skills.map((skill) => (
 
                     <div key={skill.id}>
@@ -117,6 +118,7 @@ export default function Page() {
 
                         <div>
 
+
                           <form onSubmit={(e) => {
                             e.preventDefault();
                             const formData = new FormData(e.currentTarget);
@@ -128,7 +130,15 @@ export default function Page() {
                             <input type='text' name='name' placeholder='Nom de la compétence' defaultValue={skill.name} required />
                             <button type='submit'>Modifier la compétence</button>
                           </form>
-                          <button className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded' onClick={() => deleteSkill(skill.id)}>Supprimer</button>
+
+                          <Link href={`/skills/${skill.id}`} className='bg-blue-800 px-4 py-2 rounded font-bold'>
+                            Voir
+                          </Link>
+
+                          <button className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
+                           onClick={() => deleteSkill(skill.id)}>
+                            Supprimer
+                          </button>
                         </div>
 
                       </li>
