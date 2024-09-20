@@ -1,30 +1,23 @@
 'use client'
+import { updateUser } from "@/app/_controllers/_user/actions"
 
-export default function DashboardEditForm({ user }) {
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
-    const data = Object.fromEntries(formData)
-    console.log(data);
 
-    const response = await fetch("/api/current_user", {
-      method: "PATCH",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    const updatedUser = await response.json()
-    console.log(updatedUser)
-  }
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'Admin' | 'Pro' | 'Free' | 'Normal';
+}
+
+export default function DashboardEditForm({ user }: { user: User }) {
+  const updateCurrentUser = updateUser.bind(null, user.id)
 
  return (
-   <form onSubmit={handleSubmit}>
-
-    <input type="hidden" name="id" value={user.id} />
-
+   <form action={updateCurrentUser}>
     <div className="">
-      <label htmlFor="name">Nom sur l'app</label>
+      <label htmlFor="name">Nom sur l&apos;app</label>
       <input type="text" name="name" defaultValue={user.name} disabled />
     </div>
 
@@ -34,18 +27,25 @@ export default function DashboardEditForm({ user }) {
     </div>
 
     <div>
-      <label htmlFor="name">Prénom</label>
+      <label htmlFor="firstName">Prénom</label>
       <input type="text" name="firstName" defaultValue={user.firstName} />
     </div>
 
     <div>
-      <label htmlFor="name">Nom de famille</label>
+      <label htmlFor="lastName">Nom de famille</label>
       <input type="text" name="lastName" defaultValue={user.lastName} />
     </div>
 
     <div>
-      <label htmlFor="name">Rôle</label>
-      <input type="text" name="role" defaultValue={user.role} />
+      <label htmlFor="role">Rôle</label>
+      {/* input select parmi Admin - Pro - Free - Normal */}
+      <select name="role" defaultValue={user.role}>
+        <option value="Admin">Admin</option>
+        <option value="Pro">Pro</option>
+        <option value="Free">Free</option>
+        <option value="Normal">Normal</option>
+      </select>
+
     </div>
 
      <button type="submit" className="px-4 py-2 bg-blue-600">Mettre à jour</button>

@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { redirect } from "next/navigation"
 
 export async function GET() {
  const currentSession = await auth()

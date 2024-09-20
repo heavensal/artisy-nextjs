@@ -1,16 +1,13 @@
-import { auth } from "@/lib/auth"
+
+import { currentUser } from "@/app/_controllers/_user/actions";
 import DashboardEditForm from "./DashboardEditForm"
 
 export default async function EditDashboard() {
- const session = await auth()
- if (!session?.user) {
-   return <div>Non authentifié</div>
- }
-
+  const current_user = await currentUser()
  return (
    <div>
      <h1>Modifier le profil</h1>
-     <DashboardEditForm user={session.user} />
+     <DashboardEditForm user={current_user} />
    </div>
  )
 }
